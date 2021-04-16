@@ -1,0 +1,3 @@
+C:\Users\X\source\repos\BOT KONPLOT TO ARDUINO\obj\Debug\BOT KONPLOT TO ARDUINO.njsprojAssemblyReference.cache
+C:\Users\X\source\repos\BOT KONPLOT TO ARDUINO\obj\Debug\BOT KONPLOT TO ARDUINO.njsproj.CoreCompileInputs.cache
+C:\Users\X\source\repos\BOT KONPLOT TO ARDUINO\bin\Microsoft.NodejsTools.WebRole.dll
