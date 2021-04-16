@@ -1,0 +1,427 @@
+
+#include <Servo.h>
+ 
+
+  
+String chutale;
+int marco;
+int start;
+int i = 1;
+int caso;
+int plotZ;
+Servo ServoZ;
+
+int Acero;
+int Auno;
+int Atres;
+int Acuatro;
+int contadory = 10;
+int contadorx = 5;
+
+int inicio;
+int Xspeed = 100;
+int Yspeed = 300;
+int raro = LOW;
+int aleatorioX;
+int aleatorioY ;
+int contador = 0;
+int rara = LOW;
+
+unsigned long previousMillis = 0;        // will store last time LED was updated
+const long intervalX = 2;           // interval at which to blink (milliseconds)
+const long intervalRandom = 200;            // intervalo del blink de Y
+
+
+
+//*******************************************************************
+
+
+
+
+int Xdir = HIGH;
+int Xstart = LOW;
+int XState = LOW;
+
+int SensorXiz; // sensores carro X
+int SensorXder; // sensores carro X
+int SensorYiz;// sensores carro Y
+int SensorYder; // sensores carro Y
+
+void sensores() { ///////////////////////////////Hace una Lectura de los 4 sensores/////////////////////////////
+
+  SensorXiz = digitalRead(4); // sensores carro X
+  SensorXder = digitalRead(2); // sensores carro X
+  SensorYiz = digitalRead(A5); // sensores carro Y
+  SensorYder = digitalRead(13); // sensores carro Y
+
+ // Serial.println(String(SensorXiz) +  String(SensorXder) + String(SensorYiz) + String(SensorYder));
+}
+
+void movXinfinito() {
+  sensores();
+  if ( Xstart == HIGH) {   ////////////////////////////////// MOVER EJE X? //////////////////////////
+    if ( Xdir == HIGH  ) {
+      if (SensorXiz == HIGH) {
+        analogWrite(3, 0);
+        analogWrite(5, XState);
+      } else {
+        analogWrite(3, 0);
+        analogWrite(5, 0);
+        delay(1);
+        Xdir = LOW;
+      }
+    }
+    else {
+
+      if (SensorXder == HIGH) {
+
+        analogWrite(5, 0);
+        analogWrite(3, XState );
+      } else {
+         analogWrite(3, 0);
+        analogWrite(5, 0);
+        delay(1);
+        Xdir = HIGH;
+      }
+    }
+
+  } else {   /// STOP X
+    analogWrite(3, 0);
+    analogWrite(5, 0);
+
+  }
+}
+
+
+
+
+int Ydir = LOW;
+int Ystart = LOW;
+int YState = LOW;
+
+void movYinfinito() {
+  sensores();
+
+  if ( Ystart == HIGH) {   ////////////////////////////////// MOVER EJE Y? //////////////////////////
+    if ( Ydir == HIGH ) { //////////////////////////////////////MOVER Y A LA IZ ///////////////////
+
+      if (SensorYder == HIGH) {
+       
+        analogWrite(11, 0);
+        analogWrite(6, YState);
+        
+      } else {
+        
+        analogWrite(11, 0);
+        analogWrite(6, 0);
+        delay(1);
+        Ydir = LOW;
+      }
+    } else {
+
+
+      if (SensorYiz == HIGH) {
+
+        analogWrite(6, 0);
+        analogWrite(11, YState);
+      } else {
+        
+        analogWrite(11, 0);
+        analogWrite(6, 0);
+        delay(1);
+        Ydir = HIGH;
+      }
+
+    }
+  } else {   /////////////////////////// STOP ////////////////
+    analogWrite(11, 0);
+    analogWrite(6, 0);
+
+
+  }
+}
+
+//*******************************************************************
+
+
+
+
+
+
+
+void MotorX(int Acero, int Auno) {
+  if (SensorXiz == HIGH) {//  Cuado 3 es HIGH X se va a la IZ
+    contadorx = contadorx + 1;
+    analogWrite(5, Acero);
+    delay(contadorx);
+    analogWrite(5, 0);
+    delay(2);
+
+    if (contadorx == 15) {
+      contadorx = 3;
+    }
+
+
+  } else {
+    analogWrite(5, 0);
+    delay(2);
+  }
+
+  if (SensorXder == HIGH) { // Cuado 2 es HIGH X se va a la Der
+
+    contadorx = contadorx + 1;
+    analogWrite(3, Auno);
+    delay(contadorx);
+    analogWrite(3, 0);
+    delay(2);
+
+    if (contadorx == 15) {
+      contadorx = 3;
+    }
+
+  } else {
+    analogWrite(3, 0);
+    delay(2);
+  }
+}
+
+void MotorY(int Atres, int Acuatro) {
+  if (SensorYiz == HIGH) { //  Cuado 11 es HIGH Y se va a la IZ se acerca al carro X
+
+    contadory = contadory + 1;
+    analogWrite(11, Atres);
+    delay(contadory);
+    analogWrite(11, 0);
+    delay(2);
+    if (contadory == 60) {
+      contadory = 10;
+    }
+
+  } else {
+    analogWrite(11, 0);
+    delay(2);
+  }
+
+  if (SensorYder == HIGH) {     //  Cuado 6 es HIGH Y se va a la Der se Aleja del carro X
+
+    contadory = contadory + 1;
+    analogWrite(6, Acuatro);
+    delay(contadory);
+    analogWrite(6, 0);
+    delay(2);
+    if (contadory == 40) {
+      contadory = 10;
+    }
+
+  } else {
+    analogWrite(6, 0);
+    delay(2);
+  }
+}
+
+
+
+
+void antiBUG() {
+  analogWrite(11, 0);
+  analogWrite(6, 0);
+  analogWrite(5, 0);
+  analogWrite(3, 0);
+  delay(1);
+
+}
+
+void setup() {
+
+  pinMode (2, INPUT );
+  pinMode (3, OUTPUT);   // X
+  pinMode (4, INPUT);
+  pinMode (5, OUTPUT);  //  X
+  pinMode (6, OUTPUT);
+  pinMode (7, INPUT);
+  pinMode (8, INPUT);
+  pinMode (9, INPUT);
+  pinMode (10, INPUT);
+  pinMode (11, OUTPUT);
+  ServoZ.attach(12)  ;
+  pinMode (13, INPUT);
+  Serial.begin(115200);
+  ServoZ.write(0); // Levanta el brazo Z ai iniciar
+
+}
+
+void loop() {
+  sensores();
+
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= intervalX) {
+    previousMillis = currentMillis;
+    if (XState == LOW && YState == LOW) {
+      XState = Xspeed ; // PWM de X
+      YState = Yspeed ;// PWM de Y
+    } else {
+      XState = 0;
+      YState = 0;
+    }
+  }
+
+
+
+  if (Serial.available() > 0) {  /////////////////////////////////////LEE EL PUERTO SERIAL //////////////////////////////////////
+    antiBUG();
+
+    chutale =  Serial.readString() ;   ////////////////////// llama lo que sea que entre como Chutale para analizarlo ////////////
+
+
+    if (chutale.indexOf("PLOT") != -1) {
+      ServoZ.write(20);
+      delay(100);
+    }
+
+    if (chutale.indexOf("KON") != -1) {
+      ServoZ.write(0);
+    }
+
+    if (chutale.indexOf("START") != -1) { // SI RECIVE "X" ENCIENDE MOTOR x
+      ServoZ.write(20);
+      delay(250);
+      start = HIGH;
+      rara = LOW;
+    }
+
+    if (chutale.indexOf("STOP") != -1) { // SI RECIVE "X" detiene MOTOR x
+      ServoZ.write( 0);
+      start = LOW;
+      rara = LOW;
+
+    }
+
+    if (chutale.indexOf("X") != -1) { // SI RECIVE "X" detiene MOTOR x
+      Xspeed = random(10, 255);
+    }
+
+    if (chutale.indexOf("Y") != -1) { // SI RECIVE "X" detiene MOTOR x
+
+      Yspeed = random(10, 255);
+
+    }
+
+    if (chutale.indexOf("CAOS") != -1) { // SI RECIVE "X" detiene MOTOR x
+      raro = HIGH;
+    }
+
+    if (chutale.indexOf("RIZOMA") != -1) { // SI RECIVE "X" detiene MOTOR x
+      raro = LOW;
+    }
+
+   if (chutale.indexOf("COVID") != -1) { // SI RECIVE "X" detiene MOTOR x
+      Xspeed = random(10, 200);
+      Yspeed = random(50, 255); //// 
+    } 
+
+    if (chutale.indexOf("RARA") != -1) { // SI RECIVE "X" ENCIENDE MOTOR x
+      Serial.println("rara");
+
+      start = LOW;
+      rara = HIGH;
+
+
+    }
+    /////////////////////////////////////////////CARRO "X" STOP////////////////////////////////////////////////////////////
+
+
+
+
+
+
+  }
+
+
+  if (start == HIGH) {
+    Xstart = HIGH;
+    Ystart = HIGH;
+  } else {
+    Xstart = LOW;
+    Ystart = LOW;
+  }
+
+
+
+
+  if (raro == HIGH) {
+    contador = contador + 1;
+    if (contador > 1000) {
+
+      aleatorioX = random (20000);
+      aleatorioY = random (20000);
+      contador = 0;
+    }
+    if (aleatorioX < 10000) {
+      Xdir = LOW;
+    } else {
+      Xdir = HIGH;
+    }
+
+
+    if (aleatorioY < 10000) {
+      Ydir = LOW;
+    } else {
+      Ydir = HIGH;
+    }
+  }
+
+
+
+  //Serial.println(rara);
+
+
+  if (rara == 1) {
+    if (start == LOW) {
+
+      //for(int i = 0; i < 200; i ++){
+      Acero = random(150, 255); // map(analogRead(0), 0, 1023, 0, 255);
+      Auno = random(150, 255); // map(analogRead(1), 0, 1023, 0, 255);
+
+      if ( Acero < Auno) {
+        Acero = Acero;
+        Auno = 0;
+      } else {
+        Auno = Auno;
+        Acero = 0;
+      }
+
+      Atres = random(150, 255); //map(analogRead(2), 0, 1023, 0, 255);
+      Acuatro = random(150, 255); // map(analogRead(3), 0, 1023, 0, 255);
+      if ( Atres < Acuatro) {
+        Atres = Atres;
+        Acuatro = 0;
+      } else {
+        Acuatro = Acuatro;
+        Atres = 0;
+      }
+
+      while (start == LOW) {
+        MotorX(Acero, Atres);
+        MotorY( Atres, Acuatro);
+      }
+    } else {
+
+      Acero = 0;
+      Auno = 0;
+      Atres = 0;
+      Acuatro = 0;
+      while (start == LOW) {
+        MotorX(Acero, Atres);
+        MotorY( Atres, Acuatro);
+        start = LOW;
+      }
+    }
+  } else {
+
+    movXinfinito();
+    movYinfinito();
+  }
+
+
+
+}
